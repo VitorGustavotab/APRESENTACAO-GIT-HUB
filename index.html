@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub — Apresentação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0d1117;
+    --bg-1:#161b22;
+    --bg-2:#1c2128;
+    --border:#30363d;
+    --text-0:#e6edf3;
+    --text-1:#8b949e;
+    --green:#3fb950;
+    --purple:#a371f7;
+    --blue:#58a6ff;
+    --orange:#db6d28;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    height:100%;
+    background:var(--bg-0);
+    color:var(--text-0);
+    font-family:var(--sans);
+    overflow:hidden;
+  }
+  #bgCanvas{
+    position:fixed; inset:0; width:100%; height:100%; z-index:0;
+  }
+  #deck{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    display:flex;
+    z-index:1;
+  }
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8vh 9vw;
+    opacity:0;
+    transform:translateX(40px);
+    pointer-events:none;
+    transition:opacity .55s ease, transform .55s ease;
+  }
+  .slide.active{
+    opacity:1;
+    transform:translateX(0);
+    pointer-events:auto;
+  }
+  .slide.leaving{
+    transform:translateX(-40px);
+  }
+
+  .reveal{
+    opacity:0;
+    animation: revealUp .6s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes revealUp{
+    from{opacity:0; transform:translateY(16px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .kicker{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--green);
+    letter-spacing:.02em;
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .kicker::before{
+    content:"";
+    width:8px;height:8px;border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 0 3px rgba(63,185,80,.18);
+    animation:pulseDot 1.8s ease-in-out infinite;
+  }
+  @keyframes pulseDot{
+    0%,100%{box-shadow:0 0 0 3px rgba(63,185,80,.18);}
+    50%{box-shadow:0 0 0 7px rgba(63,185,80,.05);}
+  }
+  h1{
+    font-family:var(--mono);
+    font-weight:800;
+    font-size:clamp(34px,5.2vw,64px);
+    line-height:1.08;
+    letter-spacing:-.01em;
+  }
+  h2{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:clamp(24px,3vw,36px);
+    line-height:1.15;
+    margin-bottom:6px;
+    position:relative;
+    display:inline-block;
+  }
+  h2::after{
+    content:"";
+    position:absolute; left:0; bottom:-8px;
+    height:3px; width:0%;
+    background:linear-gradient(90deg,var(--green),var(--purple));
+    animation:underlineGrow .7s .25s ease forwards;
+  }
+  @keyframes underlineGrow{ to{width:60px;} }
+  p{
+    color:var(--text-1);
+    font-size:clamp(15px,1.3vw,18px);
+    line-height:1.6;
+    max-width:640px;
+  }
+
+  /* ---------- SLIDE 0 : TITLE ---------- */
+  #slide-0{padding:0;}
+  .title-wrap{
+    position:relative; z-index:2;
+    padding:0 9vw;
+    display:flex; flex-direction:column; justify-content:center; height:100%;
+  }
+  .title-wrap h1{
+    font-size:clamp(48px,9vw,110px);
+    background:linear-gradient(100deg, var(--text-0) 30%, var(--purple) 55%, var(--green) 80%);
+    background-size:220% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation:shimmer 6s ease-in-out infinite;
+  }
+  @keyframes shimmer{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
+  .title-wrap .sub{
+    margin-top:20px; font-size:clamp(16px,1.6vw,20px); color:var(--text-1); max-width:560px;
+  }
+  .prompt-line{
+    font-family:var(--mono); font-size:14px; color:var(--text-1);
+    margin-top:44px; display:flex; align-items:center; gap:10px;
+  }
+  .prompt-line .sym{color:var(--green);}
+  .caret{
+    display:inline-block; width:8px; height:18px; background:var(--text-0);
+    animation:blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+
+  .orbit-badge{
+    position:absolute; z-index:2; font-family:var(--mono); font-size:11px;
+    color:var(--text-1); border:1px solid var(--border); background:rgba(22,27,34,.7);
+    backdrop-filter:blur(4px); border-radius:20px; padding:6px 12px;
+    animation:floatY 5s ease-in-out infinite;
+  }
+  @keyframes floatY{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-12px);}
+  }
+
+  /* ---------- SLIDE 1 : O QUE É ---------- */
+  #slide-1{ flex-direction:row; align-items:center; gap:6vw; }
+  .s1-left{flex:1.1; max-width:520px;}
+  .s1-right{flex:1; display:flex; justify-content:center;}
+  .flow{
+    display:flex; flex-direction:column; align-items:center; gap:0;
+    font-family:var(--mono); font-size:13px;
+  }
+  .flow-box{
+    width:220px; padding:18px 20px; border-radius:8px;
+    background:var(--bg-1); border:1px solid var(--border);
+    transition:transform .3s ease, border-color .3s ease;
+  }
+  .flow-box:hover{transform:scale(1.03); border-color:var(--text-1);}
+  .flow-box .label{color:var(--text-1); font-size:11px; margin-bottom:6px;}
+  .flow-box .value{color:var(--text-0); font-size:15px; font-weight:700;}
+  .flow-box.remote{border-color:rgba(163,113,247,.4);}
+  .flow-box.remote .value{color:var(--purple);}
+  .flow-arrow{
+    width:2px; height:46px; background:linear-gradient(var(--border),var(--purple));
+    position:relative;
+  }
+  .flow-arrow::after{
+    content:"↓"; position:absolute; left:50%; top:100%; transform:translate(-50%,-8px);
+    color:var(--purple); font-size:16px;
+  }
+  .flow-arrow .dot{
+    position:absolute; left:50%; top:0; transform:translateX(-50%);
+    width:8px; height:8px; border-radius:50%; background:var(--green);
+    box-shadow:0 0 10px 1px rgba(63,185,80,.7);
+    animation:travel 2.2s linear infinite;
+  }
+  @keyframes travel{
+    0%{top:0; opacity:0;}
+    10%{opacity:1;}
+    90%{opacity:1;}
+    100%{top:100%; opacity:0;}
+  }
+
+  /* ---------- SLIDE 2 : PARA QUE SERVE (bento) ---------- */
+  .bento{
+    display:grid;
+    grid-template-columns:1.3fr 1fr 1fr;
+    grid-template-rows:auto auto;
+    gap:16px;
+    margin-top:34px;
+    max-width:920px;
+  }
+  .bento-card{
+    background:var(--bg-1); border:1px solid var(--border); border-radius:10px;
+    padding:22px;
+    transition:border-color .25s ease, transform .25s ease, background .25s ease;
+  }
+  .bento-card:hover{
+    border-color:var(--text-1); transform:translateY(-5px) scale(1.015);
+    background:var(--bg-2);
+  }
+  .bento-card h3{
+    font-family:var(--mono); font-size:15px; margin-bottom:8px; color:var(--text-0);
+  }
+  .bento-card p{font-size:13.5px; max-width:none;}
+  .bento-card.big{grid-row:span 2;}
+  .tag-dot{
+    width:8px;height:8px;border-radius:50%; display:inline-block; margin-right:8px;
+    animation:pulseDot 2.4s ease-in-out infinite;
+  }
+
+  /* ---------- INTERFACE TOUR MOCKUPS ---------- */
+  .mockup{
+    margin-top:30px;
+    background:var(--bg-1);
+    border:1px solid var(--border);
+    border-radius:10px;
+    max-width:760px;
+    overflow:hidden;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,.6);
+    transition:box-shadow .3s ease;
+  }
+  .mockup:hover{ box-shadow:0 24px 60px -18px rgba(0,0,0,.75); }
+  .mockup-bar{
+    display:flex; align-items:center; gap:6px;
+    padding:10px 14px; border-bottom:1px solid var(--border);
+    background:var(--bg-2);
+  }
+  .mockup-bar span{width:10px;height:10px;border-radius:50%; background:var(--border);}
+  .mockup-bar span:nth-child(1){background:#ff5f56;}
+  .mockup-bar span:nth-child(2){background:#ffbd2e;}
+  .mockup-bar span:nth-child(3){background:#27c93f;}
+  .mockup-url{
+    margin-left:14px; flex:1; max-width:360px;
+    background:var(--bg-0); border:1px solid var(--border); border-radius:6px;
+    padding:4px 10px; font-family:var(--mono); font-size:11px; color:var(--text-1);
+    transition:color .3s ease;
+  }
+  .mockup-body{padding:0;}
+
+  /* ---------- GITHUB CHROME (recriação da interface real) ---------- */
+  .gh-topbar{
+    display:flex; align-items:center; gap:14px;
+    padding:12px 20px; background:#0d1117; border-bottom:1px solid var(--border);
+  }
+  .gh-mark{
+    width:22px; height:22px; border-radius:5px;
+    background:var(--text-0); color:#0d1117;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-weight:800; font-size:11px; flex-shrink:0;
+  }
+  .gh-path{font-family:var(--mono); font-size:13px; color:var(--text-0); white-space:nowrap;}
+  .gh-path .sep{color:var(--text-1); margin:0 4px;}
+  .gh-search{
+    flex:1; max-width:280px; font-family:var(--mono); font-size:11.5px; color:var(--text-1);
+    background:var(--bg-1); border:1px solid var(--border); border-radius:6px; padding:6px 10px;
+  }
+  .gh-avatar{
+    width:24px; height:24px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg,var(--purple),var(--blue));
+    margin-left:auto;
+  }
+  .gh-tabs{
+    display:flex; gap:20px; padding:0 20px; background:var(--bg-1);
+    border-bottom:1px solid var(--border); overflow-x:auto;
+  }
+  .gh-tab{
+    font-family:var(--mono); font-size:12px; color:var(--text-1);
+    padding:11px 2px; border-bottom:2px solid transparent; white-space:nowrap;
+    display:flex; align-items:center; gap:6px; cursor:pointer;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .gh-tab .n{color:var(--text-1); font-size:10.5px;}
+  .gh-tab.active{color:var(--text-0); border-color:var(--orange); font-weight:600;}
+  .gh-tab.active .n{color:var(--text-0);}
+  .gh-tab:hover{color:var(--text-0);}
+
+  .gh-repo-header{padding:18px 20px 4px;}
+  .stat-row{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;}
+  .stat-pill{
+    font-family:var(--mono); font-size:11px; color:var(--text-1);
+    border:1px solid var(--border); border-radius:6px; padding:4px 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .gh-columns{display:flex; gap:24px; padding:16px 20px 22px; align-items:flex-start;}
+  .gh-main{flex:1; min-width:0;}
+  .gh-sidebar{width:190px; flex-shrink:0; font-family:var(--mono); font-size:11.5px;}
+  .gh-sidebar h4{font-size:12px; margin-bottom:8px; color:var(--text-0);}
+  .gh-sidebar .desc{color:var(--text-1); line-height:1.5; margin-bottom:12px;}
+  .topic-chip{
+    display:inline-block; font-size:10px; color:var(--blue);
+    background:rgba(88,166,255,.1); border-radius:14px; padding:3px 9px;
+    margin:0 5px 5px 0;
+  }
+  .lang-bar{
+    display:flex; height:7px; border-radius:4px; overflow:hidden; margin:10px 0 8px;
+  }
+  .lang-seg{height:100%;}
+  .lang-legend{display:flex; flex-wrap:wrap; gap:8px 12px; font-size:10.5px; color:var(--text-1);}
+  .lang-legend span::before{
+    content:""; display:inline-block; width:8px; height:8px; border-radius:50%;
+    margin-right:5px; vertical-align:middle; background:var(--c,var(--text-1));
+  }
+  .readme-card{
+    margin-top:6px; border:1px solid var(--border); border-radius:8px; overflow:hidden;
+  }
+  .readme-card .rc-head{
+    font-family:var(--mono); font-size:11.5px; color:var(--text-1);
+    background:var(--bg-1); padding:9px 14px; border-bottom:1px solid var(--border);
+  }
+  .readme-card .rc-body{padding:14px; font-size:12.5px; color:var(--text-1); line-height:1.6;}
+  .readme-card .rc-body strong{color:var(--text-0);}
+
+  .gh-filterbar{
+    display:flex; align-items:center; gap:10px; padding:14px 20px;
+    border-bottom:1px solid var(--border); flex-wrap:wrap;
+  }
+  .state-tabs{display:flex; gap:16px; font-family:var(--mono); font-size:12px;}
+  .state-tab{color:var(--text-1); display:flex; align-items:center; gap:5px; cursor:pointer; transition:color .2s ease;}
+  .state-tab:hover{color:var(--text-0);}
+  .state-tab.active{color:var(--text-0); font-weight:600;}
+  .filter-input{
+    flex:1; min-width:140px; font-family:var(--mono); font-size:11.5px; color:var(--text-1);
+    background:var(--bg-1); border:1px solid var(--border); border-radius:6px; padding:6px 10px;
+  }
+  .filter-pill{
+    font-family:var(--mono); font-size:11px; color:var(--text-1);
+    border:1px solid var(--border); border-radius:6px; padding:5px 10px;
+  }
+  .issue-list{padding:4px 20px 18px;}
+  .label-chip{
+    font-family:var(--mono); font-size:9.5px; border-radius:10px; padding:1px 8px;
+    display:inline-block; margin-right:5px; border:1px solid;
+  }
+  .comment-count{
+    font-family:var(--mono); font-size:11px; color:var(--text-1);
+    display:flex; align-items:center; gap:4px; margin-left:auto; flex-shrink:0;
+  }
+  .issue-state-icon{
+    width:16px; height:16px; border-radius:50%; margin-top:3px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:9px; color:#0d1117;
+  }
+  .toggle-hint{
+    font-family:var(--mono); font-size:11px; color:var(--text-1);
+    margin-top:10px; display:flex; align-items:center; gap:6px;
+  }
+
+  .gh-repo-header .name{font-family:var(--mono); font-weight:700; font-size:16px;}
+  .gh-repo-header .visibility{
+    font-family:var(--mono); font-size:11px; color:var(--text-1);
+    border:1px solid var(--border); border-radius:20px; padding:2px 9px; margin-left:10px;
+  }
+  .file-row{
+    display:flex; justify-content:space-between; padding:9px 0;
+    border-bottom:1px solid var(--bg-2); font-family:var(--mono); font-size:12.5px;
+    color:var(--text-1);
+    opacity:0; transform:translateX(-10px);
+    animation:rowIn .45s ease forwards;
+    transition:background .2s ease;
+  }
+  .file-row:hover{background:var(--bg-2);}
+  .file-row .fname{color:var(--text-0);}
+  @keyframes rowIn{to{opacity:1; transform:translateX(0);}}
+
+  .issue-row{
+    display:flex; align-items:flex-start; gap:12px; padding:12px 0;
+    border-bottom:1px solid var(--bg-2);
+    opacity:0; transform:translateX(-10px);
+    animation:rowIn .45s ease forwards;
+    transition:background .2s ease;
+  }
+  .issue-row:hover{background:var(--bg-2);}
+  .issue-icon{
+    width:16px; height:16px; border-radius:50%; margin-top:3px; flex-shrink:0;
+    animation:pulseDot 2.4s ease-in-out infinite;
+  }
+  .issue-title{font-size:13.5px; color:var(--text-0); font-weight:500;}
+  .issue-sub{font-family:var(--mono); font-size:11px; color:var(--text-1); margin-top:3px;}
+
+  .badge{
+    font-family:var(--mono); font-size:10.5px; padding:2px 8px; border-radius:20px;
+    border:1px solid; display:inline-block;
+  }
+
+  /* ---------- CLOSING ---------- */
+  .recap{display:flex; gap:14px; margin-top:30px; flex-wrap:wrap; max-width:640px;}
+  .recap-chip{
+    font-family:var(--mono); font-size:12.5px; color:var(--text-0);
+    border:1px solid var(--border); border-radius:8px; padding:10px 14px;
+    background:var(--bg-1);
+    opacity:0; transform:scale(.85);
+    animation:chipIn .45s ease forwards;
+    transition:transform .25s ease, border-color .25s ease;
+  }
+  .recap-chip:hover{ transform:scale(1.08); border-color:var(--green); }
+  @keyframes chipIn{to{opacity:1; transform:scale(1);}}
+
+  /* ---------- NAV ---------- */
+  #nav{
+    position:absolute; bottom:26px; left:0; right:0;
+    display:flex; align-items:center; justify-content:center; gap:22px;
+    z-index:10;
+  }
+  .nav-btn{
+    width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--border); background:var(--bg-1);
+    color:var(--text-0); font-size:16px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .2s ease, background .2s ease, transform .15s ease;
+  }
+  .nav-btn:hover{border-color:var(--green); background:var(--bg-2); transform:scale(1.08);}
+  .nav-btn:active{transform:scale(.94);}
+  .nav-btn:disabled{opacity:.3; cursor:default; transform:none;}
+  #dots{display:flex; gap:9px;}
+  .dot-btn{
+    width:7px; height:7px; border-radius:50%; background:var(--border);
+    border:none; cursor:pointer; transition:background .2s ease, width .2s ease;
+  }
+  .dot-btn.active{background:var(--green); width:20px; border-radius:4px;}
+
+  #counter{
+    position:absolute; top:26px; right:36px; z-index:10;
+    font-family:var(--mono); font-size:12px; color:var(--text-1);
+  }
+
+  /* ---------- EXEMPLOS NO DIA A DIA ---------- */
+  .ex-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin-top:26px;
+    max-width:1000px;
+  }
+  .ex-card{
+    background:var(--bg-1); border:1px solid var(--border); border-radius:10px;
+    padding:18px 18px 14px;
+    display:flex; flex-direction:column;
+    transition:border-color .25s ease, transform .25s ease, background .25s ease;
+  }
+  .ex-card:hover{
+    border-color:var(--text-1); transform:translateY(-4px);
+    background:var(--bg-2);
+  }
+  .ex-icon{
+    width:34px; height:34px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; margin-bottom:11px;
+  }
+  .ex-card h3{
+    font-family:var(--mono); font-size:14px; color:var(--text-0); margin-bottom:7px;
+  }
+  .ex-card p{
+    font-size:12.8px; line-height:1.55; max-width:none; flex:1;
+  }
+  .ex-ref{
+    font-family:var(--mono); font-size:10.5px; color:var(--text-1);
+    margin-top:12px; padding-top:9px; border-top:1px solid var(--bg-2);
+    display:flex; align-items:center; gap:6px; word-break:break-all;
+  }
+  .ex-ref::before{
+    content:"↗"; color:var(--green); flex-shrink:0;
+  }
+
+  /* ---------- SLIDE DO SIMULADOR (janela integrada, sem scroll) ---------- */
+  #slide-5{
+    padding:0;
+    display:flex; flex-direction:column;
+    justify-content:flex-start;
+  }
+  .sim-header{
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+    padding:16px 26px 12px;
+    flex-shrink:0;
+  }
+  .sim-kicker{
+    font-family:var(--mono); font-size:11px; color:var(--green);
+  }
+  .sim-title{
+    font-family:var(--mono); font-size:17px; font-weight:700; color:var(--text-0);
+  }
+  .sim-note{
+    font-family:var(--mono); font-size:11px; color:var(--text-1);
+  }
+  .sim-frame{
+    flex:1; min-height:0;
+    width:min(1180px, 100%);
+    margin:0 auto 64px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    background:#0d1117;
+    position:relative;
+  }
+
+  /* ---------- SIMULADOR DE GIT BASH (nativo, mesma identidade visual do deck) ---------- */
+  .term-sim{
+    position:absolute; inset:0;
+    display:flex;
+    background:var(--bg-0);
+  }
+  .term-sidebar{
+    width:300px; flex-shrink:0;
+    background:var(--bg-1); border-right:1px solid var(--border);
+    overflow-y:auto; padding:14px 0 16px;
+  }
+  .term-user{
+    font-family:var(--mono); font-size:10.5px; color:var(--text-1);
+    padding:0 16px 12px; margin-bottom:8px; border-bottom:1px solid var(--border);
+    word-break:break-all; display:flex; align-items:center; gap:6px;
+  }
+  .term-user::before{content:"👤"; font-size:11px;}
+  .eixo-group{margin-bottom:4px;}
+  .eixo-title{
+    font-family:var(--mono); font-weight:700; font-size:11px; color:var(--green);
+    padding:10px 16px 6px; text-transform:uppercase; letter-spacing:.03em;
+  }
+  .cmd-btn{
+    display:block; width:100%; text-align:left; background:none; border:none;
+    font-family:var(--mono); font-size:12.5px; color:var(--text-1);
+    padding:7px 16px 7px 22px; cursor:pointer; border-left:2px solid transparent;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .cmd-btn:hover{background:var(--bg-2); color:var(--text-0);}
+  .cmd-btn.active{color:var(--text-0); border-left-color:var(--green); background:var(--bg-2); font-weight:600;}
+  .term-sidebar-foot{
+    margin-top:14px; padding:12px 16px 0; border-top:1px solid var(--border);
+    font-family:var(--mono); font-size:10.5px; color:var(--text-1); line-height:1.7;
+  }
+  .term-sidebar-foot .v{color:var(--purple);}
+  .term-sidebar-foot .prompt{color:var(--text-0); margin-top:4px; display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden;}
+  .term-sidebar-foot .prompt .sym{color:var(--green);}
+
+  .term-panel{flex:1; display:flex; flex-direction:column; min-width:0;}
+  .term-panel-bar{
+    display:flex; align-items:center; gap:6px;
+    padding:10px 14px; border-bottom:1px solid var(--border); background:var(--bg-2);
+    flex-shrink:0;
+  }
+  .term-panel-bar span{width:10px;height:10px;border-radius:50%; background:var(--border);}
+  .term-panel-bar span:nth-child(1){background:#ff5f56;}
+  .term-panel-bar span:nth-child(2){background:#ffbd2e;}
+  .term-panel-bar span:nth-child(3){background:#27c93f;}
+  .term-panel-title{
+    margin-left:12px; font-family:var(--mono); font-size:11.5px; color:var(--text-1);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .term-panel-body{flex:1; overflow-y:auto; padding:24px 30px 30px;}
+
+  .term-empty{
+    height:100%; display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+    color:var(--text-1); font-family:var(--mono); font-size:13px; max-width:420px; gap:10px;
+  }
+  .term-empty .big{font-size:15px; color:var(--text-0);}
+
+  .term-eixo-badge{
+    display:inline-block; font-family:var(--mono); font-size:11px; color:var(--purple);
+    border:1px solid rgba(163,113,247,.4); background:rgba(163,113,247,.1);
+    padding:3px 11px; border-radius:20px; margin-bottom:16px;
+  }
+  .term-cmd-name{
+    font-family:var(--mono); font-weight:800; font-size:22px; color:var(--text-0); margin-bottom:22px;
+    word-break:break-word;
+  }
+  .term-block{margin-bottom:20px;}
+  .term-block .tb-label{
+    font-family:var(--mono); font-size:11px; color:var(--text-1); text-transform:uppercase;
+    letter-spacing:.04em; margin-bottom:8px; display:flex; align-items:center; gap:8px;
+  }
+  .term-block .tb-label .num{
+    width:18px; height:18px; border-radius:50%; background:var(--green); color:#0d1117;
+    font-size:10px; font-weight:800; display:inline-flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .term-syntax{
+    font-family:var(--mono); font-size:13.5px; color:var(--blue);
+    background:var(--bg-1); border:1px solid var(--border); border-radius:6px;
+    padding:10px 14px; display:block; width:100%; box-sizing:border-box; overflow-x:auto;
+  }
+  .term-text{color:var(--text-1); font-size:13.5px; line-height:1.65; max-width:none;}
+
+  .term-example{
+    margin-top:6px; background:#010409; border:1px solid var(--border); border-radius:8px; overflow:hidden;
+  }
+  .term-example-bar{display:flex; align-items:center; gap:6px; padding:8px 12px; background:var(--bg-2); border-bottom:1px solid var(--border); flex-wrap:nowrap; min-width:0;}
+  .term-example-bar span{width:9px;height:9px;border-radius:50%; background:var(--border); flex-shrink:0;}
+  .term-example-bar span:nth-child(1){background:#ff5f56;}
+  .term-example-bar span:nth-child(2){background:#ffbd2e;}
+  .term-example-bar span:nth-child(3){background:#27c93f;}
+  .term-example-bar .lbl{
+    margin-left:8px; font-family:var(--mono); font-size:10.5px; color:var(--text-1);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1;
+  }
+  .term-example-body{padding:14px 16px; font-family:var(--mono); font-size:12.5px; line-height:1.75; white-space:pre-wrap;}
+  .term-example-body .tl-cmd{color:var(--green); display:block;}
+  .term-example-body .tl-cmd::before{content:"$ "; color:var(--text-1);}
+  .term-example-body .tl-out{color:var(--text-1); display:block;}
+
+  @media (max-width:760px){
+    #slide-1{flex-direction:column; gap:5vh;}
+    .bento{grid-template-columns:1fr 1fr;}
+    .bento-card.big{grid-row:span 1; grid-column:span 2;}
+    .ex-grid{grid-template-columns:1fr 1fr; gap:10px;}
+    #slide-5{padding:0;}
+    .sim-frame{margin:0 8px 62px; width:auto;}
+    .term-sim{flex-direction:column;}
+    .term-sidebar{
+      width:100%; max-height:38%; border-right:none; border-bottom:1px solid var(--border);
+    }
+    .term-panel-body{padding:18px 18px 24px;}
+    .term-cmd-name{font-size:18px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div id="deck">
+
+  <!-- SLIDE 0 — TITLE -->
+  <section class="slide active" id="slide-0">
+    <div class="title-wrap">
+      <div class="kicker reveal" style="animation-delay:.05s">tour de interface</div>
+      <h1 class="reveal" style="animation-delay:.15s">GitHub</h1>
+      <p class="sub reveal" style="animation-delay:.3s">Onde código vira colaboração: histórico de mudanças e trabalho em equipe em um só lugar, direto do navegador.</p>
+      <div class="prompt-line reveal" style="animation-delay:.5s"><span class="sym">$</span> iniciando apresentação<span class="caret"></span></div>
+    </div>
+    <div class="orbit-badge" style="top:18%; right:12%; animation-delay:0s;">repositórios</div>
+    <div class="orbit-badge" style="top:68%; right:20%; animation-delay:1.2s;">issues</div>
+    <div class="orbit-badge" style="top:40%; right:6%; animation-delay:2.4s;">pull requests</div>
+  </section>
+
+  <!-- SLIDE 1 — O QUE É -->
+  <section class="slide" id="slide-1">
+    <div class="s1-left">
+      <div class="kicker reveal" style="animation-delay:.05s">01 · conceito</div>
+      <h2 class="reveal" style="animation-delay:.1s">O que é o GitHub?</h2>
+      <p class="reveal" style="margin-top:14px; animation-delay:.2s">
+        O GitHub é uma plataforma online para hospedar e gerenciar projetos de código.
+        Ele guarda o histórico completo de cada projeto, permitindo que qualquer alteração
+        seja registrada, revisada e recuperada quando necessário.
+      </p>
+      <p class="reveal" style="margin-top:14px; animation-delay:.32s">
+        Mais do que um repositório de arquivos, é o lugar onde equipes se encontram
+        para organizar, discutir e evoluir o mesmo projeto juntas.
+      </p>
+    </div>
+    <div class="s1-right">
+      <div class="flow reveal" style="animation-delay:.35s">
+        <div class="flow-box">
+          <div class="label">seu projeto</div>
+          <div class="value">código-fonte</div>
+        </div>
+        <div class="flow-arrow"><div class="dot"></div></div>
+        <div class="flow-box remote">
+          <div class="label">na nuvem</div>
+          <div class="value">GitHub</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2 — PARA QUE SERVE -->
+  <section class="slide" id="slide-2">
+    <div class="kicker reveal" style="animation-delay:.05s">02 · utilidade</div>
+    <h2 class="reveal" style="animation-delay:.1s">Para que ele é usado?</h2>
+    <p class="reveal" style="animation-delay:.2s">Quatro motivos que fazem do GitHub o ponto de encontro de quem programa.</p>
+    <div class="bento">
+      <div class="bento-card big reveal" style="animation-delay:.28s">
+        <h3><span class="tag-dot" style="background:var(--green);"></span>Histórico completo</h3>
+        <p>Cada alteração fica registrada. É possível voltar a qualquer ponto do histórico do projeto sem perder nada pelo caminho.</p>
+      </div>
+      <div class="bento-card reveal" style="animation-delay:.36s">
+        <h3><span class="tag-dot" style="background:var(--purple);"></span>Colaboração</h3>
+        <p>Vários desenvolvedores trabalham no mesmo projeto ao mesmo tempo, sem sobrescrever o trabalho uns dos outros.</p>
+      </div>
+      <div class="bento-card reveal" style="animation-delay:.44s">
+        <h3><span class="tag-dot" style="background:var(--blue);"></span>Portfólio</h3>
+        <p>Seu perfil público mostra os projetos em que você trabalhou — é o currículo prático de quem programa.</p>
+      </div>
+      <div class="bento-card reveal" style="grid-column:span 2; animation-delay:.52s">
+        <h3><span class="tag-dot" style="background:var(--orange);"></span>Comunidade open source</h3>
+        <p>Milhões de projetos abertos recebem contribuições de qualquer pessoa — de quem está começando a grandes bibliotecas usadas no mundo todo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3 — TOUR: REPOSITÓRIO -->
+  <section class="slide" id="slide-3">
+    <div class="kicker reveal" style="animation-delay:.05s">03 · tour da interface</div>
+    <h2 class="reveal" style="animation-delay:.1s">O repositório</h2>
+    <p class="reveal" style="animation-delay:.2s">Cada projeto vive dentro de um repositório: arquivos, histórico, descrição e as ferramentas de colaboração, tudo na mesma tela.</p>
+    <div class="mockup reveal" style="animation-delay:.3s; max-width:800px;">
+      <div class="mockup-bar"><span></span><span></span><span></span>
+        <div class="mockup-url">🔒 github.com/meu-usuario/projeto-incrivel</div>
+      </div>
+      <div class="mockup-body">
+        <div class="gh-topbar">
+          <div class="gh-mark">GH</div>
+          <div class="gh-path">meu-usuario<span class="sep">/</span><strong>projeto-incrivel</strong></div>
+          <div class="gh-search">Search or jump to...</div>
+          <div class="gh-avatar"></div>
+        </div>
+        <div class="gh-tabs">
+          <div class="gh-tab active">⌗ Code</div>
+          <div class="gh-tab">◉ Issues <span class="n">12</span></div>
+          <div class="gh-tab">⇄ Pull requests <span class="n">3</span></div>
+          <div class="gh-tab">▶ Actions</div>
+          <div class="gh-tab">▤ Projects</div>
+          <div class="gh-tab">⚙ Settings</div>
+        </div>
+        <div class="gh-repo-header">
+          <span class="name">projeto-incrivel</span>
+          <span class="visibility">público</span>
+          <div class="stat-row">
+            <span class="stat-pill">⭐ Star · 128</span>
+            <span class="stat-pill">⑂ Fork · 24</span>
+            <span class="stat-pill">👁 Watch · 6</span>
+          </div>
+        </div>
+        <div class="gh-columns">
+          <div class="gh-main">
+            <div class="file-row" style="animation-delay:.5s"><span class="fname">📁 src</span><span>atualizado há 2 dias</span></div>
+            <div class="file-row" style="animation-delay:.58s"><span class="fname">📁 public</span><span>atualizado há 4 dias</span></div>
+            <div class="file-row" style="animation-delay:.66s"><span class="fname">📄 README.md</span><span>atualizado há 5 dias</span></div>
+            <div class="file-row" style="animation-delay:.74s"><span class="fname">📄 package.json</span><span>atualizado há 1 semana</span></div>
+            <div class="file-row" style="animation-delay:.82s"><span class="fname">📄 .gitignore</span><span>atualizado há 2 semanas</span></div>
+            <div class="readme-card">
+              <div class="rc-head">📖 README.md</div>
+              <div class="rc-body"><strong>projeto-incrivel</strong> — uma aplicação de exemplo criada para demonstrar a interface do GitHub durante esta apresentação.</div>
+            </div>
+          </div>
+          <div class="gh-sidebar">
+            <h4>Sobre</h4>
+            <div class="desc">Aplicação de exemplo usada para apresentar a interface do GitHub.</div>
+            <span class="topic-chip">javascript</span><span class="topic-chip">frontend</span><span class="topic-chip">demo</span>
+            <h4 style="margin-top:14px;">Languages</h4>
+            <div class="lang-bar">
+              <div class="lang-seg" style="width:62%; background:var(--orange);"></div>
+              <div class="lang-seg" style="width:23%; background:var(--blue);"></div>
+              <div class="lang-seg" style="width:15%; background:var(--purple);"></div>
+            </div>
+            <div class="lang-legend">
+              <span style="--c:var(--orange);">JavaScript</span>
+              <span style="--c:var(--blue);">CSS</span>
+              <span style="--c:var(--purple);">HTML</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4 — TOUR: ISSUES & PR -->
+  <section class="slide" id="slide-4">
+    <div class="kicker reveal" style="animation-delay:.05s">03 · tour da interface</div>
+    <h2 class="reveal" style="animation-delay:.1s">Issues e Pull Requests</h2>
+    <p class="reveal" style="animation-delay:.2s"><strong style="color:var(--text-0);">Issues</strong> registram tarefas, ideias e bugs. <strong style="color:var(--text-0);">Pull Requests</strong> propõem mudanças para revisão antes de entrarem no projeto. Clique nas abas abaixo para alternar.</p>
+    <div class="mockup reveal" style="animation-delay:.3s; max-width:800px;">
+      <div class="mockup-bar"><span></span><span></span><span></span>
+        <div class="mockup-url" id="ghUrl">🔒 github.com/meu-usuario/projeto-incrivel/issues</div>
+      </div>
+      <div class="mockup-body">
+        <div class="gh-topbar">
+          <div class="gh-mark">GH</div>
+          <div class="gh-path">meu-usuario<span class="sep">/</span><strong>projeto-incrivel</strong></div>
+          <div class="gh-search">Search or jump to...</div>
+          <div class="gh-avatar"></div>
+        </div>
+        <div class="gh-tabs">
+          <div class="gh-tab">⌗ Code</div>
+          <div class="gh-tab" id="tabIssuesTop">◉ Issues <span class="n">12</span></div>
+          <div class="gh-tab" id="tabPrTop">⇄ Pull requests <span class="n">3</span></div>
+          <div class="gh-tab">▶ Actions</div>
+          <div class="gh-tab">▤ Projects</div>
+          <div class="gh-tab">⚙ Settings</div>
+        </div>
+        <div class="gh-filterbar">
+          <div class="state-tabs">
+            <div class="state-tab active" id="tabIssues">◉ Issues 12 abertas</div>
+            <div class="state-tab" id="tabPr">⇄ Pull requests 3 abertas</div>
+          </div>
+          <div class="filter-input">is:open filtrar...</div>
+          <div class="filter-pill">Labels</div>
+        </div>
+
+        <div class="issue-list" id="issuesPanel">
+          <div class="issue-row" style="animation-delay:.5s">
+            <div class="issue-state-icon" style="background:var(--green);">●</div>
+            <div>
+              <div class="issue-title">Adicionar tema escuro à interface</div>
+              <div class="issue-sub">#42 aberta há 2 dias por <strong style="color:var(--text-0);">ana-dev</strong> · <span class="label-chip" style="border-color:var(--blue); color:var(--blue);">enhancement</span></div>
+            </div>
+            <div class="comment-count">💬 3</div>
+          </div>
+          <div class="issue-row" style="animation-delay:.62s">
+            <div class="issue-state-icon" style="background:var(--green);">●</div>
+            <div>
+              <div class="issue-title">Botão de login não responde no mobile</div>
+              <div class="issue-sub">#40 aberta há 5 dias por <strong style="color:var(--text-0);">joao-silva</strong> · <span class="label-chip" style="border-color:var(--orange); color:var(--orange);">bug</span></div>
+            </div>
+            <div class="comment-count">💬 7</div>
+          </div>
+          <div class="issue-row" style="animation-delay:.74s">
+            <div class="issue-state-icon" style="background:#a371f7;">✕</div>
+            <div>
+              <div class="issue-title">Atualizar dependências do projeto</div>
+              <div class="issue-sub"><span style="color:var(--purple);">fechada</span> há 1 semana por <strong style="color:var(--text-0);">vitor</strong> · <span class="label-chip" style="border-color:var(--text-1); color:var(--text-1);">chore</span></div>
+            </div>
+            <div class="comment-count">💬 1</div>
+          </div>
+        </div>
+
+        <div class="issue-list" id="prPanel" style="display:none;">
+          <div class="issue-row" style="animation-delay:.05s">
+            <div class="issue-state-icon" style="background:var(--green);">⇄</div>
+            <div>
+              <div class="issue-title">Corrige bug no formulário de login</div>
+              <div class="issue-sub">#41 aberta há 3 dias por <strong style="color:var(--text-0);">vitor</strong> · quer mesclar em <span class="label-chip" style="border-color:var(--text-1); color:var(--text-1);">main</span></div>
+            </div>
+            <div class="comment-count">💬 5</div>
+          </div>
+          <div class="issue-row" style="animation-delay:.15s">
+            <div class="issue-state-icon" style="background:#a371f7;">✓</div>
+            <div>
+              <div class="issue-title">Refatora componentes da barra lateral</div>
+              <div class="issue-sub"><span style="color:var(--purple);">mesclada</span> há 4 dias por <strong style="color:var(--text-0);">ana-dev</strong></div>
+            </div>
+            <div class="comment-count">💬 2</div>
+          </div>
+          <div class="issue-row" style="animation-delay:.25s">
+            <div class="issue-state-icon" style="background:var(--green);">⇄</div>
+            <div>
+              <div class="issue-title">Adiciona testes para o módulo de autenticação</div>
+              <div class="issue-sub">#38 aberta há 6 dias por <strong style="color:var(--text-0);">joao-silva</strong></div>
+            </div>
+            <div class="comment-count">💬 0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5 — SIMULADOR DE COMANDOS GIT -->
+  <section class="slide" id="slide-5">
+    <div class="sim-header reveal" style="animation-delay:.05s">
+      <span class="sim-kicker">04 · comandos do git</span>
+      <span class="sim-title">Simulador de Git Bash</span>
+      <span class="sim-note">selecione um comando à esquerda para ver sintaxe, utilidade, quando usar e um exemplo de execução</span>
+    </div>
+    <div class="sim-frame reveal" style="animation-delay:.2s">
+      <div class="term-sim">
+        <div class="term-sidebar">
+          <div class="term-user">gael.aleixo88@gmail.com</div>
+          <div id="eixoList"></div>
+          <div class="term-sidebar-foot">
+            <div>GIT-BASH-SIMULATOR <span class="v">v2.0</span></div>
+            <div class="prompt"><span class="sym">$</span> gael@github-tour (main)<span class="caret"></span></div>
+          </div>
+        </div>
+        <div class="term-panel">
+          <div class="term-panel-bar"><span></span><span></span><span></span>
+            <div class="term-panel-title" id="termPanelTitle">gael@github-tour: ~/projeto-incrivel</div>
+          </div>
+          <div class="term-panel-body" id="termBody">
+            <div class="term-empty">
+              <div class="big">Selecione um comando</div>
+              <div>Escolha um item na lista ao lado para ver o guia completo: sintaxe, para que serve, quando usar e um exemplo de execução com retorno.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6 — EXEMPLOS NO DIA A DIA -->
+  <section class="slide" id="slide-6">
+    <div class="kicker reveal" style="animation-delay:.05s">05 · na prática</div>
+    <h2 class="reveal" style="animation-delay:.1s">GitHub no dia a dia</h2>
+    <p class="reveal" style="animation-delay:.2s">Exemplos reais de uso — do sistema que roda no seu celular ao trabalho da faculdade.</p>
+    <div class="ex-grid">
+      <div class="ex-card reveal" style="animation-delay:.28s">
+        <div class="ex-icon" style="background:rgba(63,185,80,.12); color:var(--green);">🐧</div>
+        <h3>O kernel do Linux</h3>
+        <p>O código-fonte do Linux — base de servidores, do Android e de incontáveis dispositivos — é mantido publicamente no GitHub, recebendo contribuições de milhares de desenvolvedores.</p>
+        <div class="ex-ref">github.com/torvalds/linux</div>
+      </div>
+      <div class="ex-card reveal" style="animation-delay:.36s">
+        <div class="ex-icon" style="background:rgba(88,166,255,.12); color:var(--blue);">⌨</div>
+        <h3>Editores e ferramentas</h3>
+        <p>O Visual Studio Code é desenvolvido abertamente: quando um usuário encontra um bug, ele abre uma issue e o time responde ali mesmo, à vista de todos.</p>
+        <div class="ex-ref">github.com/microsoft/vscode</div>
+      </div>
+      <div class="ex-card reveal" style="animation-delay:.44s">
+        <div class="ex-icon" style="background:rgba(163,113,247,.12); color:var(--purple);">🌐</div>
+        <h3>Hospedar sites de graça</h3>
+        <p>O GitHub Pages publica um site direto do repositório, sem servidor nem custo. O simulador de Git Bash que vimos há dois slides está hospedado exatamente assim.</p>
+        <div class="ex-ref">gaelaleixo.github.io/GitBash</div>
+      </div>
+      <div class="ex-card reveal" style="animation-delay:.52s">
+        <div class="ex-icon" style="background:rgba(219,109,40,.12); color:var(--orange);">⚙</div>
+        <h3>Automação (Actions)</h3>
+        <p>A cada envio de código, o GitHub Actions roda testes e publica a nova versão sozinho — o time descobre um erro em minutos, não depois que o usuário reclama.</p>
+        <div class="ex-ref">docs.github.com · GitHub Actions</div>
+      </div>
+      <div class="ex-card reveal" style="animation-delay:.60s">
+        <div class="ex-icon" style="background:rgba(63,185,80,.12); color:var(--green);">🏛</div>
+        <h3>Dados abertos do governo</h3>
+        <p>Órgãos públicos brasileiros publicam catálogos e códigos no GitHub, e qualquer cidadão pode sugerir correções abrindo um pull request.</p>
+        <div class="ex-ref">github.com/dadosgovbr</div>
+      </div>
+      <div class="ex-card reveal" style="animation-delay:.68s">
+        <div class="ex-icon" style="background:rgba(88,166,255,.12); color:var(--blue);">🎓</div>
+        <h3>Trabalhos da faculdade</h3>
+        <p>Projetos em grupo ficam versionados: cada integrante trabalha em sua parte, o histórico mostra quem fez o quê, e o perfil vira portfólio na hora do estágio.</p>
+        <div class="ex-ref">github.com/&lt;seu-usuario&gt;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7 — ENCERRAMENTO -->
+  <section class="slide" id="slide-7">
+    <div class="kicker reveal" style="animation-delay:.05s">encerramento</div>
+    <h2 class="reveal" style="animation-delay:.1s">Recapitulando</h2>
+    <p class="reveal" style="animation-delay:.2s">O GitHub é onde seus projetos ganham um lar compartilhado: histórico, colaboração e comunidade em torno do código.</p>
+    <div class="recap">
+      <div class="recap-chip" style="animation-delay:.32s">repositório</div>
+      <div class="recap-chip" style="animation-delay:.4s">arquivos</div>
+      <div class="recap-chip" style="animation-delay:.48s">issues</div>
+      <div class="recap-chip" style="animation-delay:.56s">pull requests</div>
+      <div class="recap-chip" style="animation-delay:.64s">comunidade</div>
+    </div>
+    <div class="prompt-line reveal" style="margin-top:32px; animation-delay:.72s"><span class="sym">$</span> obrigado pela atenção<span class="caret"></span></div>
+  </section>
+
+</div>
+
+<div id="counter">01 / 08</div>
+<div id="nav">
+  <button class="nav-btn" id="prevBtn" aria-label="Anterior">←</button>
+  <div id="dots"></div>
+  <button class="nav-btn" id="nextBtn" aria-label="Próximo">→</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'dot-btn' + (i === 0 ? ' active' : '');
+    b.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(b);
+  });
+  const dots = Array.from(dotsWrap.children);
+  counter.textContent = '01 / ' + String(slides.length).padStart(2,'0');
+
+  function replayReveals(slide){
+    slide.querySelectorAll('.reveal, .file-row, .issue-row, .recap-chip').forEach(el=>{
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+    });
+  }
+
+  function goTo(i){
+    if(i < 0 || i >= slides.length || i === current) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('leaving');
+    setTimeout(()=> slides[current].classList.remove('leaving'), 600);
+    slides[i].classList.add('active');
+    dots[current].classList.remove('active');
+    dots[i].classList.add('active');
+    current = i;
+    counter.textContent = String(i+1).padStart(2,'0') + ' / ' + String(slides.length).padStart(2,'0');
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === slides.length - 1;
+    replayReveals(slides[i]);
+  }
+  prevBtn.addEventListener('click', ()=> goTo(current-1));
+  nextBtn.addEventListener('click', ()=> goTo(current+1));
+  prevBtn.disabled = true;
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowRight') goTo(current+1);
+    if(e.key === 'ArrowLeft') goTo(current-1);
+  });
+
+  let touchX = null;
+  document.addEventListener('touchstart', e=> touchX = e.touches[0].clientX);
+  document.addEventListener('touchend', e=>{
+    if(touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(dx > 50) goTo(current-1);
+    if(dx < -50) goTo(current+1);
+    touchX = null;
+  });
+
+  // ---------- Toggle Issues / Pull Requests dentro do próprio mockup ----------
+  const tabIssues = document.getElementById('tabIssues');
+  const tabPr = document.getElementById('tabPr');
+  const tabIssuesTop = document.getElementById('tabIssuesTop');
+  const tabPrTop = document.getElementById('tabPrTop');
+  const issuesPanel = document.getElementById('issuesPanel');
+  const prPanel = document.getElementById('prPanel');
+  const ghUrl = document.getElementById('ghUrl');
+
+  function showIssues(){
+    issuesPanel.style.display = '';
+    prPanel.style.display = 'none';
+    tabIssues.classList.add('active'); tabPr.classList.remove('active');
+    tabIssuesTop.classList.add('active'); tabPrTop.classList.remove('active');
+    ghUrl.textContent = '🔒 github.com/meu-usuario/projeto-incrivel/issues';
+    issuesPanel.querySelectorAll('.issue-row').forEach(el=>{
+      el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+    });
+  }
+  function showPr(){
+    issuesPanel.style.display = 'none';
+    prPanel.style.display = '';
+    tabPr.classList.add('active'); tabIssues.classList.remove('active');
+    tabPrTop.classList.add('active'); tabIssuesTop.classList.remove('active');
+    ghUrl.textContent = '🔒 github.com/meu-usuario/projeto-incrivel/pulls';
+    prPanel.querySelectorAll('.issue-row').forEach(el=>{
+      el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+    });
+  }
+  if(tabIssues){
+    tabIssues.addEventListener('click', showIssues);
+    tabIssuesTop.addEventListener('click', showIssues);
+    tabPr.addEventListener('click', showPr);
+    tabPrTop.addEventListener('click', showPr);
+  }
+
+  // ---------- Simulador de Git Bash (nativo, identidade visual do deck) ----------
+  const gitEixos = [
+    {
+      titulo: "Eixo 1 · Preparação do Ambiente",
+      comandos: [
+        {
+          nome: "git config --global user.name",
+          sintaxe: 'git config --global user.name "Seu Nome"',
+          paraQueServe: "Define o nome que será associado a cada commit feito neste computador, identificando o autor das alterações.",
+          quandoUsar: "Na primeira configuração do Git em uma máquina nova, antes do primeiro commit.",
+          exemplo: [
+            { cmd: 'git config --global user.name "Gael Aleixo"', out: "" },
+            { cmd: "git config --global user.name", out: "Gael Aleixo" }
+          ]
+        },
+        {
+          nome: "git config --global user.email",
+          sintaxe: 'git config --global user.email "seu@email.com"',
+          paraQueServe: "Define o e-mail vinculado aos commits, usado para associar as alterações à sua conta no GitHub.",
+          quandoUsar: "Logo após o user.name, ainda na configuração inicial do ambiente.",
+          exemplo: [
+            { cmd: 'git config --global user.email "gael.aleixo88@gmail.com"', out: "" },
+            { cmd: "git config --global user.email", out: "gael.aleixo88@gmail.com" }
+          ]
+        },
+        {
+          nome: "git config --global init.defaultBranch",
+          sintaxe: "git config --global init.defaultBranch main",
+          paraQueServe: "Padroniza o nome da branch inicial criada por git init, evitando divergência entre master e main.",
+          quandoUsar: "Uma única vez, ao configurar o Git, para manter consistência entre todos os projetos.",
+          exemplo: [
+            { cmd: "git config --global init.defaultBranch main", out: "" },
+            { cmd: "git init", out: "Initialized empty Git repository in ~/projeto-incrivel/.git/" }
+          ]
+        },
+        {
+          nome: "git init",
+          sintaxe: "git init",
+          paraQueServe: "Cria um repositório Git local vazio dentro da pasta atual, iniciando o controle de versão.",
+          quandoUsar: "No começo de um novo projeto, quando ainda não existe histórico de commits.",
+          exemplo: [
+            { cmd: "git init", out: "Initialized empty Git repository in ~/projeto-incrivel/.git/" }
+          ]
+        },
+        {
+          nome: "git config --list",
+          sintaxe: "git config --list",
+          paraQueServe: "Lista todas as configurações ativas do Git — nome, e-mail, branch padrão e outras — útil para auditoria.",
+          quandoUsar: "Sempre que quiser conferir se as configurações do ambiente estão corretas.",
+          exemplo: [
+            { cmd: "git config --list", out: "user.name=Gael Aleixo\nuser.email=gael.aleixo88@gmail.com\ninit.defaultbranch=main\ncore.editor=nano" }
+          ]
+        }
+      ]
+    },
+    {
+      titulo: "Eixo 2 · Ciclo de Vida e Versionamento",
+      comandos: [
+        {
+          nome: "git status",
+          sintaxe: "git status",
+          paraQueServe: "Mostra o estado atual dos arquivos: o que foi modificado, o que já está na staging area e o que não é rastreado.",
+          quandoUsar: "Antes de cada add ou commit, para saber exatamente o que será enviado.",
+          exemplo: [
+            { cmd: "git status", out: "On branch main\nChanges not staged for commit:\n  modified:   index.html\n\nUntracked files:\n  novo-arquivo.js" }
+          ]
+        },
+        {
+          nome: "git add",
+          sintaxe: "git add <arquivo>   |   git add .",
+          paraQueServe: "Move as alterações do diretório de trabalho para a staging area, preparando-as para o commit.",
+          quandoUsar: "Depois de editar arquivos, antes de registrar as mudanças com commit.",
+          exemplo: [
+            { cmd: "git add index.html", out: "" },
+            { cmd: "git status", out: "Changes to be committed:\n  modified:   index.html" }
+          ]
+        },
+        {
+          nome: "git commit",
+          sintaxe: 'git commit -m "mensagem"',
+          paraQueServe: "Cria um novo snapshot no histórico do projeto com as alterações que estavam na staging area.",
+          quandoUsar: "Sempre que um conjunto de mudanças estiver completo e testado.",
+          exemplo: [
+            { cmd: 'git commit -m "Ajusta layout do header"', out: "[main 3f9a1c2] Ajusta layout do header\n 1 file changed, 4 insertions(+), 1 deletion(-)" }
+          ]
+        },
+        {
+          nome: "git log --oneline",
+          sintaxe: "git log --oneline",
+          paraQueServe: "Exibe o histórico de commits de forma resumida, um por linha, com hash curto e mensagem.",
+          quandoUsar: "Para revisar o que já foi feito ou localizar um commit específico.",
+          exemplo: [
+            { cmd: "git log --oneline", out: "3f9a1c2 Ajusta layout do header\na82e701 Cria estrutura inicial do projeto" }
+          ]
+        }
+      ]
+    },
+    {
+      titulo: "Eixo 3 · Branches e Paralelismo",
+      comandos: [
+        {
+          nome: "git branch",
+          sintaxe: "git branch   |   git branch <nome>",
+          paraQueServe: "Lista as branches existentes ou cria uma nova, permitindo linhas de desenvolvimento paralelas.",
+          quandoUsar: "Ao iniciar uma nova funcionalidade sem afetar a branch principal.",
+          exemplo: [
+            { cmd: "git branch", out: "* main" },
+            { cmd: "git branch tema-escuro", out: "" },
+            { cmd: "git branch", out: "  tema-escuro\n* main" }
+          ]
+        },
+        {
+          nome: "git checkout",
+          sintaxe: "git checkout <branch>",
+          paraQueServe: "Alterna o diretório de trabalho para outra branch, trocando o contexto de desenvolvimento.",
+          quandoUsar: "Para começar a trabalhar em uma branch que já existe.",
+          exemplo: [
+            { cmd: "git checkout tema-escuro", out: "Switched to branch 'tema-escuro'" }
+          ]
+        },
+        {
+          nome: "git merge",
+          sintaxe: "git merge <branch>",
+          paraQueServe: "Une o histórico de outra branch à branch atual, combinando o trabalho feito em paralelo.",
+          quandoUsar: "Quando uma funcionalidade está pronta e precisa voltar para a branch principal.",
+          exemplo: [
+            { cmd: "git checkout main", out: "Switched to branch 'main'" },
+            { cmd: "git merge tema-escuro", out: "Updating 3f9a1c2..7bd44e0\nFast-forward\n styles.css | 12 ++++++++++--" }
+          ]
+        }
+      ]
+    },
+    {
+      titulo: "Eixo 4 · Correção e Manutenção",
+      comandos: [
+        {
+          nome: "git diff",
+          sintaxe: "git diff",
+          paraQueServe: "Mostra linha a linha o que foi alterado nos arquivos antes de irem para a staging area.",
+          quandoUsar: "Antes do add, para revisar exatamente o que será incluído no próximo commit.",
+          exemplo: [
+            { cmd: "git diff", out: "- color: black;\n+ color: var(--text-0);" }
+          ]
+        },
+        {
+          nome: "git checkout --",
+          sintaxe: "git checkout -- <arquivo>",
+          paraQueServe: "Descarta alterações não commitadas em um arquivo, restaurando a última versão salva no repositório.",
+          quandoUsar: "Quando uma edição deu errado e você quer voltar ao último commit.",
+          exemplo: [
+            { cmd: "git checkout -- index.html", out: "" },
+            { cmd: "git status", out: "nothing to commit, working tree clean" }
+          ]
+        },
+        {
+          nome: "git reset HEAD",
+          sintaxe: "git reset HEAD <arquivo>",
+          paraQueServe: "Remove um arquivo da staging area, mantendo as alterações no diretório de trabalho.",
+          quandoUsar: "Quando você deu add em algo por engano e ainda não quer commitar.",
+          exemplo: [
+            { cmd: "git reset HEAD index.html", out: "Unstaged changes after reset:\nM  index.html" }
+          ]
+        },
+        {
+          nome: "git reset --soft / --hard",
+          sintaxe: "git reset --soft <commit>   |   git reset --hard <commit>",
+          paraQueServe: "Move o ponteiro HEAD para outro commit; --soft mantém as alterações, --hard descarta tudo.",
+          quandoUsar: "Para desfazer commits recentes: --soft se quiser refazer o commit, --hard em emergências, com cautela.",
+          exemplo: [
+            { cmd: "git reset --soft HEAD~1", out: "" },
+            { cmd: "git status", out: "Changes to be committed:\n  modified:   index.html" }
+          ]
+        }
+      ]
+    }
+  ];
+
+  const eixoListEl = document.getElementById('eixoList');
+  const termBody = document.getElementById('termBody');
+  const termPanelTitle = document.getElementById('termPanelTitle');
+
+  if(eixoListEl){
+    let cmdIndex = 0;
+    gitEixos.forEach((eixo, eIdx) => {
+      const group = document.createElement('div');
+      group.className = 'eixo-group';
+      const title = document.createElement('div');
+      title.className = 'eixo-title';
+      title.textContent = eixo.titulo;
+      group.appendChild(title);
+      eixo.comandos.forEach(cmd => {
+        const btn = document.createElement('button');
+        btn.className = 'cmd-btn';
+        btn.type = 'button';
+        btn.textContent = cmd.nome;
+        btn.dataset.idx = String(cmdIndex);
+        btn.addEventListener('click', () => selectComando(eIdx, cmd, btn));
+        group.appendChild(btn);
+        cmdIndex++;
+      });
+      eixoListEl.appendChild(group);
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function selectComando(eixoIdx, cmd, btnEl){
+    document.querySelectorAll('.cmd-btn.active').forEach(b => b.classList.remove('active'));
+    if(btnEl) btnEl.classList.add('active');
+
+    const eixoNome = gitEixos[eixoIdx].titulo;
+    termPanelTitle.textContent = 'gael@github-tour: ~/projeto-incrivel  ·  ' + cmd.nome;
+
+    const exemploHtml = cmd.exemplo.map(linha => {
+      let html = `<span class="tl-cmd">${escapeHtml(linha.cmd)}</span>`;
+      if(linha.out){
+        html += `<span class="tl-out">${escapeHtml(linha.out)}</span>`;
+      }
+      return html;
+    }).join('');
+
+    termBody.innerHTML = `
+      <div class="term-eixo-badge">${escapeHtml(eixoNome)}</div>
+      <div class="term-cmd-name">${escapeHtml(cmd.nome)}</div>
+
+      <div class="term-block">
+        <div class="tb-label"><span class="num">2</span> Sintaxe</div>
+        <div class="term-syntax">${escapeHtml(cmd.sintaxe)}</div>
+      </div>
+
+      <div class="term-block">
+        <div class="tb-label"><span class="num">3</span> Para que serve?</div>
+        <div class="term-text">${escapeHtml(cmd.paraQueServe)}</div>
+      </div>
+
+      <div class="term-block">
+        <div class="tb-label"><span class="num">4</span> Quando usar?</div>
+        <div class="term-text">${escapeHtml(cmd.quandoUsar)}</div>
+      </div>
+
+      <div class="term-block">
+        <div class="tb-label">Exemplo de execução</div>
+        <div class="term-example">
+          <div class="term-example-bar"><span></span><span></span><span></span><span class="lbl">gael@github-tour</span></div>
+          <div class="term-example-body">${exemploHtml}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ---------- Ambient canvas animation: commit-graph lines behind every slide ----------
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W, H;
+  function resize(){
+    W = canvas.width = window.innerWidth * devicePixelRatio;
+    H = canvas.height = window.innerHeight * devicePixelRatio;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+  }
+  resize();
+  window.addEventListener('resize', ()=>{ resize(); buildLanes(); });
+
+  const lanes = [];
+  function buildLanes(){
+    lanes.length = 0;
+    const laneCount = 6;
+    for(let i=0;i<laneCount;i++){
+      lanes.push({
+        y: (H*0.08) + i*(H*0.16) + (Math.random()*30-15),
+        speed: 0.12 + Math.random()*0.22,
+        offset: Math.random()*1000,
+        amp: 12 + Math.random()*20,
+        color: [ '63,185,80', '163,113,247', '88,166,255' ][i % 3],
+        commits: Array.from({length:5}, ()=> Math.random())
+      });
+    }
+  }
+  buildLanes();
+
+  let t = 0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // opacity is higher while slide 0 is active, ambient/faint otherwise
+    const boost = slides[current] && slides[current].id === 'slide-0' ? 1 : 0.45;
+    lanes.forEach(lane=>{
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(${lane.color},${0.16*boost})`;
+      ctx.lineWidth = 1.6 * devicePixelRatio;
+      for(let x=0; x<=W; x+=8){
+        const y = lane.y + Math.sin((x*0.006) + t*lane.speed + lane.offset) * lane.amp;
+        if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+
+      lane.commits.forEach((c)=>{
+        const x = ((c*W) + t*lane.speed*40) % W;
+        const y = lane.y + Math.sin((x*0.006) + t*lane.speed + lane.offset) * lane.amp;
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${lane.color},${0.55*boost})`;
+        ctx.arc(x, y, 3*devicePixelRatio, 0, Math.PI*2);
+        ctx.fill();
+      });
+    });
+    t += 0.02;
+    if(!reduceMotion) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,W,H);
+  }
+  draw();
+</script>
+</body>
+</html>
